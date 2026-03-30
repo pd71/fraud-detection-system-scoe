@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routes import sms
+from backend.routes import sms
 
 app = FastAPI()
 
