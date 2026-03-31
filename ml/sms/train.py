@@ -12,7 +12,7 @@ from sklearn.metrics import accuracy_score, classification_report
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load dataset
-df = pd.read_csv(BASE_DIR / "data/spam.csv", encoding="latin-1")[["v1", "v2"]]
+df = pd.read_csv(BASE_DIR / "data/sms/spam.csv", encoding="latin-1")[["v1", "v2"]]
 df.columns = ["label", "message"]
 
 # Convert labels
