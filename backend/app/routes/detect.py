@@ -10,6 +10,7 @@ router = APIRouter()
 class DetectRequest(BaseModel):
     type: str   # sms | email | url
     content: str
+    sender: str = None  # optional, only for email
 
 @router.post("/detect")
 def detect(req: DetectRequest):
@@ -17,7 +18,9 @@ def detect(req: DetectRequest):
         return detect_sms(req.content)
 
     elif req.type == "email":
-        return detect_email(req.content)
+        if not req.sender:
+            return {"error": "Sender is required for email detection"}
+        return detect_email(req.content, req.sender)
 
     elif req.type == "url":
         return detect_url(req.content)
