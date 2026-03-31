@@ -1,11 +1,7 @@
 from fastapi import FastAPI
-from backend.routes import sms
+from app.routes import detect, community
 
 app = FastAPI()
 
-app.include_router(sms.router, prefix="/sms")
-
-@app.get("/")
-def home():
-    return {"message": "Backend is running 🚀"}
-
+app.include_router(detect.router)
+app.include_router(community.router, prefix="/community")
