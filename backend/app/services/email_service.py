@@ -5,8 +5,10 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 
 MODEL_PATH = BASE_DIR / "ml/email/email_model.pkl"
+VECTORIZER_PATH = BASE_DIR / "ml/email/email_vectorizer.pkl"
 
 model = joblib.load(MODEL_PATH)
+vectorizer = joblib.load(VECTORIZER_PATH)
 
 def clean_text(text):
     text = str(text).lower()
@@ -23,13 +25,11 @@ def clean_text(text):
     return text.strip()
 
 def detect_email(content: str, sender: str) -> dict:
-    import pandas as pd
-
     cleaned = clean_text(content)
-    df = pd.DataFrame([{"text": cleaned, "sender": sender}])
-
-    prediction = model.predict(df)[0]
-    probability = model.predict_proba(df)[0][1]
+    vec = vectorizer.transform([cleaned])
+    
+    prediction = model.predict(vec)[0]
+    probability = model.predict_proba(vec)[0][1]
 
     return {
         "prediction": int(prediction),
