@@ -19,7 +19,4 @@ services:
       - key: NODE_VERSION
         value: 18.18.0
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: fraud-backend
-          property: host
+        value: https://fraudguard-backend-1327.onrender.com
