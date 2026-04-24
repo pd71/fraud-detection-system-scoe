@@ -32,7 +32,7 @@ def detect_email(content: str, sender: str) -> dict:
     probability = model.predict_proba(df)[0][1]
 
     return {
-        "is_fraud": bool(prediction),
+        "prediction": int(prediction),
         "confidence": round(float(probability), 4),
         "type": "email"
     }

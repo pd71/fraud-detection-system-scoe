@@ -12,32 +12,46 @@ export default function ScannerModal({ type, onClose }) {
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState(null); 
 
-  const handleScan = () => {
+  const handleScan = async () => {
     // If empty input, refuse scan
     if (!formData.content && !file && type !== 'Image') return;
     
     setScanning(true);
     setResult(null);
 
-    // Simulate Fake Advanced Backend Engine Execution API
-    setTimeout(() => {
-      setScanning(false);
+    try {
+      const payload = {
+        type: type.toLowerCase(),
+        content: formData.content,
+        sender: type === 'Email' ? formData.senderEmail : undefined
+      };
+
+      let apiUrl = import.meta.env.VITE_API_URL || '';
+      if (apiUrl && !apiUrl.startsWith('http')) {
+        apiUrl = `https://${apiUrl}`;
+      }
       
-      const isScam = Math.random() > 0.5 ? 1 : 0;
-      let rawConfidence = Math.random();
+      const response = await fetch(`${apiUrl}/detect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
       
-      // Ensure visually interesting demo distribution across results
-      if (rawConfidence < 0.2) rawConfidence += 0.4;
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
       
       const apiResponse = {
         type: type.toLowerCase(),
-        prediction: isScam,
-        confidence: rawConfidence
+        prediction: data.prediction,
+        confidence: data.confidence
       };
 
       // Interpretation Logic Converter
       let statusInfo = {};
-      if (apiResponse.confidence >= 0.5 && apiResponse.confidence <= 0.8) {
+      if (apiResponse.prediction === 1 && apiResponse.confidence < 0.8) {
         statusInfo = { 
           status: 'warning', 
           title: 'Suspicious', 
@@ -61,7 +75,20 @@ export default function ScannerModal({ type, onClose }) {
       }
       
       setResult({ ...apiResponse, ...statusInfo });
-    }, 2500);
+    } catch (err) {
+      console.error(err);
+      setResult({
+        status: 'danger',
+        title: 'Error',
+        desc: 'Failed to connect to the analysis engine.',
+        color: 'text-red-500', border: 'border-red-500', bg: 'bg-red-500/10',
+        type: type.toLowerCase(),
+        prediction: null,
+        confidence: 0
+      });
+    } finally {
+      setScanning(false);
+    }
   };
 
   return (
